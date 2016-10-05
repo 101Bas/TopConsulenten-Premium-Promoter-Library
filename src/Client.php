@@ -41,6 +41,54 @@ class Client
     }
 
     /**
+     * This method creates an invite for a consultant to join Topconsulenten, with the given parameters (name and rate),
+     * it returns a URL which should be triggered by a human to complete the registration.
+     *
+     * @param string $profileName The profile name for this consultant
+     * @param int $rate The rate in eurocents
+     * @param string $note A note
+     * @return string The URL for registration completion
+     * @throws InvalidCredentialsException
+     * @throws UnexpectedResponseException
+     */
+    public function createConsultantInvite($profileName, $rate, $note)
+    {
+        try {
+            $response = $this->client->request('POST', '/api/promoter/consultants/create', [
+                'body' => json_encode([
+                    'profile_name' => $profileName,
+                    'rate' => $rate,
+                    'note' => $note,
+                ]),
+            ]);
+        } catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+
+                if ($response->getStatusCode() == 401) {
+                    throw new InvalidCredentialsException('Invalid credentials supplied');
+                }
+
+                if ($response->getStatusCode() != 200) {
+                    throw new UnexpectedResponseException('The API returned a non-200 status code');
+                }
+            }
+
+            throw new UnexpectedResponseException($e->getMessage());
+        } catch (\Exception $e) {
+            throw new UnexpectedResponseException($e->getMessage());
+        }
+
+        $result = json_decode($response->getBody());
+
+        if ($result['success']) {
+            return $result['url'];
+        }
+
+        return '';
+    }
+
+    /**
      * Retrieves the available consultants from the Topconsulenten API, based on the sorting and filtering arguments
      * passed to the function.
      *
