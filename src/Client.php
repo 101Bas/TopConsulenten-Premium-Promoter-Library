@@ -79,7 +79,7 @@ class Client
             throw new UnexpectedResponseException($e->getMessage());
         }
 
-        $result = json_decode($response->getBody());
+        $result = json_decode($response->getBody(), true);
 
         if ($result['success']) {
             return $result['url'];
