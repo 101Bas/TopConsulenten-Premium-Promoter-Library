@@ -13,7 +13,7 @@ use GuzzleHttp\RequestOptions;
 class Client
 {
 
-    const ENDPOINT = 'https://topconsulenten.nl';
+    const ENDPOINT = 'https://www.topconsulenten.nl';
 
     const SORT_STATUS = 'status';
     const SORT_RATING = 'rating';
