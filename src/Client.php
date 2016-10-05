@@ -82,7 +82,7 @@ class Client
         $result = json_decode($response->getBody(), true);
 
         if ($result['success']) {
-            return $result['url'];
+            return $result['registration_url'];
         }
 
         return '';
