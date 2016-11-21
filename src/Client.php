@@ -33,10 +33,15 @@ class Client
     public function __construct($token, $endpoint = self::ENDPOINT)
     {
         $this->client = new \GuzzleHttp\Client([
-            'base_uri' => $endpoint,
-            RequestOptions::HEADERS => [
-                'Authorization' => 'Bearer ' . $token,
+            'base_url' => $endpoint,
+            'defaults' => [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token
+                ]
             ]
+//            RequestOptions::HEADERS => [
+//                'Authorization' => 'Bearer ' . $token,
+//            ]
         ]);
     }
 
@@ -54,7 +59,7 @@ class Client
     public function createConsultantInvite($profileName, $rate, $note)
     {
         try {
-            $response = $this->client->request('POST', '/api/promoter/consultants/create', [
+            $response = $this->client->post('/api/promoter/consultants/create', [
                 'body' => json_encode([
                     'profile_name' => $profileName,
                     'rate' => $rate,
@@ -118,7 +123,7 @@ class Client
         }
 
         try {
-            $response = $this->client->request('GET', '/api/promoter/consultants', [
+            $response = $this->client->get('/api/promoter/consultants', [
                 'query' => $query,
             ]);
         } catch (ClientException $e) {
