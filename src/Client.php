@@ -34,9 +34,14 @@ class Client
     {
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $endpoint,
-            RequestOptions::HEADERS => [
-                'Authorization' => 'Bearer ' . $token,
+            'defaults' => [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token
+                ]
             ]
+//            RequestOptions::HEADERS => [
+//                'Authorization' => 'Bearer ' . $token,
+//            ]
         ]);
     }
 
