@@ -33,7 +33,7 @@ class Client
     public function __construct($token, $endpoint = self::ENDPOINT)
     {
         $this->client = new \GuzzleHttp\Client([
-            'base_uri' => $endpoint,
+            'base_url' => $endpoint,
             'defaults' => [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $token
