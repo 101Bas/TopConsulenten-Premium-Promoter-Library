@@ -22,6 +22,14 @@ class Client
     const FILTER_CHAT = 'chat';
     const FILTER_PREMIUM = 'premium';
 
+    // Status constants
+	const STATUS_AVAILABLE = 1;
+	const STATUS_UNAVAILABLE = 0;
+	const STATUS_BUSY = 2;
+	const STATUS_PAUSE = 3;
+	const STATUS_FAKE_BUSY = 4;
+	const STATUS_IN_CHAT = 5;
+
     protected $client;
 
     /**
@@ -150,6 +158,53 @@ class Client
         return $parsed['promoted_consultants'];
     }
 
+	/**
+	 * Changes the availability of the consultant. Returns true on success, false otherwise
+	 *
+	 * @param string $consultantApiKey
+	 * @param int $newStatus
+	 *
+	 * @return bool
+	 */
+    public function changeConsultantStatus($consultantApiKey, $newStatus) {
+
+    	if (!is_numeric($newStatus)) {
+    		throw new InvalidStatusException('The given new-status is invalid');
+	    }
+
+	    if (!$this->isValidStatus($newStatus)) {
+    		throw new InvalidStatusException('The given new-status is invalid');
+	    }
+
+    	try {
+		    $response = $this->client->get(sprintf('/api/consultant/status/change/%d', $newStatus), [
+	            'headers' => [
+	                'Authorization' => 'Bearer ' . $consultantApiKey
+		        ]
+		    ]);
+
+		    if ($response->getStatusCode() > 200 && $response->getStatusCode() < 300) {
+		    	return true;
+		    }
+
+	    } catch (ClientException $e) {
+			if ($e->hasResponse()) {
+				$response = $e->getResponse();
+				if ($response->getStatusCode() == 401) {
+					throw new InvalidCredentialsException('Invalid credentials supplied');
+				}
+
+				if ($response->getStatusCode() == 200 && $response->getStatusCode() != 202) {
+					throw new UnexpectedResponseException('The API returned a non-20x status code');
+				}
+			}
+
+			throw new UnexpectedResponseException($e->getMessage());
+	    }
+
+	    return false;
+    }
+
     /**
      * Checks if the given sort is valid
      *
@@ -179,6 +234,25 @@ class Client
             }
         }
         return false;
+    }
+
+	/**
+	 * Checks if the given status is valid
+	 *
+	 * @param $status
+	 *
+	 * @return bool
+	 */
+    private function isValidStatus($status) {
+	    if ($status != self::STATUS_AVAILABLE &&
+	        $status != self::STATUS_UNAVAILABLE &&
+	        $status != self::STATUS_PAUSE &&
+	        $status != self::STATUS_FAKE_BUSY
+	    ) {
+		    return false;
+	    }
+
+	    return true;
     }
 
 }
